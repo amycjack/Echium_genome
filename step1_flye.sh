@@ -19,6 +19,16 @@ flye \
 --threads 20 \
 --scaffold \
 
+#flye assembly
+
+flye \
+--pacbio-hifi all_pacbio_echium.trimmed.fastq \
+--out-dir assembly_hifi \
+--genome-size 509m \
+--threads 20 \
+--scaffold \
+
+
 
 
 
