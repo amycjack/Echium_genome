@@ -1,0 +1,20 @@
+# error correction with illumina
+
+bwa index assembly.fasta
+bwa mem -t 16 assembly.fasta reads_R1.fastq reads_R2.fastq | samtools view - -Sb | samtools sort - -@14 -o mapping.sorted.bam
+samtools index mapping.sorted.bam
+
+java -Xmx32G -jar pilon-1.23.jar --genome assembly.fasta --fix all --changes --frags mapping.sorted.bam --threads 16 --output ./pilon_round1 | tee ./round1.pilon
+
+bwa index pilon_round1.fasta
+bwa mem -t 16 pilon_round1.fasta reads_R1.fastq reads_R2.fastq | samtools view - -Sb | samtools sort - -@14 -o ./mapping_pilon1.sorted.bam
+samtools index mapping_pilon1.sorted.bam
+
+java -Xmx32G -jar pilon-1.23.jar --genome pilon_round1.fasta --fix all --changes --frags mapping_pilon1.sorted.bam --threads 16 --output ./pilon_round2 | tee ./round2.pilon
+
+# haplotig purge
+
+minimap2 -ax map-pb round2.pilon.fasta all_pacbio_echium.trimmed.fastq | samtools view -hF 256 - | samtools sort -@ 8 -m 1G -o aligned.purging.bam -T tmp.ali
+purge_haplotigs readhist -b aligned.purging.bam -g round2.pilon.fasta  -t 16
+purge_haplotigs contigcov -i aligned.purging.bam.gencov -l 5 -m 30 -h 60
+purge_haplotigs purge -g round2.pilon.fasta  -c coverage_stats.csv -t 16
