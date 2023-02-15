@@ -1,0 +1,4 @@
+# Curated repeat database with RepeatModeller
+
+BuildDatabase -name Echium echium_flye.pilon.curated.fasta
+RepeatModeler-2.0.2a/RepeatModeler -database echium -pa 10 > out.log
