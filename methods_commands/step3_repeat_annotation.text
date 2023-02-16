@@ -2,3 +2,14 @@
 
 BuildDatabase -name Echium echium_flye.pilon.curated.fasta
 RepeatModeler-2.0.2a/RepeatModeler -database echium -pa 10 > out.log
+
+# First found of annotations with arabidopsis database
+
+RepeatMasker --species arabidopsis -pa 8 -dir echium_repeats_arabidopsis -gff -e RMblast -s echium_flye.pilon.curated.fasta
+
+# Second round of annotations with custom database
+
+RepeatMasker --species echium -pa 8 -lib consensi.fa.classified -dir echium_repeats_custom -gff -e RMblast -s echium_flye.pilon.curated.fasta
+
+
+
