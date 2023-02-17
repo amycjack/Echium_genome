@@ -11,5 +11,26 @@ RepeatMasker --species arabidopsis -pa 8 -dir echium_repeats_arabidopsis -gff -e
 
 RepeatMasker --species echium -pa 8 -lib consensi.fa.classified -dir echium_repeats_custom -gff -e RMblast -s echium_flye.pilon.curated.fasta
 
+# Combine repeat rounds results
+
+cat echium_repeats_arabidopsis/*.cat echium/*.cat  \
+  > Final_mask/echium.curated.scaffolds.full_mask.cat
+cd Full_mask
+
+ProcessRepeats -species echium echium.curated.scaffolds.full_mask.cat
+
+# Edit masks for MAKER input
+
+rmOutToGFF3.pl echium.curated.scaffolds.full_mask.cat > echium.curated.scaffolds.full_mask.cat.out.gff3
+# isolate complex repeats
+grep -v -e "Satellite" -e ")n" -e "-rich" echium.curated.scaffolds.full_mask.cat.out.gff3 \
+  > echium.curated.scaffolds.full_mask.cat.out.complex.gff3
+  
+# reformat to work with MAKER
+
+cat echium.curated.scaffolds.full_mask.cat.out.complex.gff3 | \
+  perl -ane '$id; if(!/^\#/){@F = split(/\t/, $_); chomp $F[-1];$id++; $F[-1] .= "\;ID=$id"; $_ = join("\t", @F)."\n"} print $_' \
+  > echium.curated.scaffolds.full_mask.cat.out.complex.gff3.reformat.gff3
+
 
 
