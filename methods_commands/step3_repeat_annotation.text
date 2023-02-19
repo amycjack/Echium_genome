@@ -11,7 +11,7 @@ RepeatMasker --species arabidopsis -pa 8 -dir echium_repeats_arabidopsis -gff -e
 
 RepeatMasker --species echium -pa 8 -lib consensi.fa.classified -dir echium_repeats_custom -gff -e RMblast -s echium_flye.pilon.curated.fasta
 
-# Combine repeat rounds results
+# Combine and process repeat rounds results
 
 cat echium_repeats_arabidopsis/*.cat echium/*.cat  \
   > Final_mask/echium.curated.scaffolds.full_mask.cat
@@ -19,18 +19,21 @@ cd Full_mask
 
 ProcessRepeats -species echium echium.curated.scaffolds.full_mask.cat
 
-# Edit masks for MAKER input
+# Edit masks for MAKER input. Custom scripts provided by github.com/darencard/GenomeAnnotation.
 
-rmOutToGFF3.pl echium.curated.scaffolds.full_mask.cat > echium.curated.scaffolds.full_mask.cat.out.gff3
+rmOutToGFF3custom -o echium.curated.scaffolds.full_mask.out > echium.curated.scaffolds.full_mask.out.gff3
+
 # isolate complex repeats
-grep -v -e "Satellite" -e ")n" -e "-rich" echium.curated.scaffolds.full_mask.cat.out.gff3 \
-  > echium.curated.scaffolds.full_mask.cat.out.complex.gff3
+
+grep -v -e "Satellite" -e "Low_complexity" -e "Simple_repeat" echium.curated.scaffolds.full_mask.out.gff3 \
+  > echium.curated.scaffolds.full_mask.out.complex.gff3
+  
   
 # reformat to work with MAKER
 
-cat echium.curated.scaffolds.full_mask.cat.out.complex.gff3 | \
+cat echium.curated.scaffolds.full_mask.out.complex.gff3 | \
   perl -ane '$id; if(!/^\#/){@F = split(/\t/, $_); chomp $F[-1];$id++; $F[-1] .= "\;ID=$id"; $_ = join("\t", @F)."\n"} print $_' \
-  > echium.curated.scaffolds.full_mask.cat.out.complex.gff3.reformat.gff3
+  > echium.curated.scaffolds.full_mask.out.complex.reformat.gff3
 
 
 
