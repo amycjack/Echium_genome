@@ -1,4 +1,4 @@
-# run MAKER abi into training
+# run MAKER inital training
 mpiexec -n 16 maker maker_bopts.ctl maker_exe.ctl maker_opts.ctl
 
 # reformat output for gene training (round 2)
@@ -6,7 +6,7 @@ gff3_merge -s -d echium_flye.pilon.curated_master_datastore_index.log > echium_r
 fasta_merge -d echium_flye.pilon.curated_master_datastore_index.log
 gff3_merge -n -s -d echium_flye.pilon.curated_master_datastore_index.log > echium_rnd1.all.maker.noseq.gff
 
-# reformat ab inito output for SNAP
+# reformat output for SNAP
 mkdir snap_round1
 maker2zff -x 0.25 -l 50 -d ../echium_flye.pilon.curated_master_datastore_index.log
 mv genome.ann echium_rnd1.zff.length50_aed0.25.ann
